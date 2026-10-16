@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPIc 만능패턴 빌더 FINAL</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:#0d1117;color:#e6edf3;line-height:1.6}
+header{background:linear-gradient(135deg,#0a3d2e,#12b886);padding:22px 24px}
+header h1{font-size:20px;letter-spacing:-.4px;color:#fff}
+header p{font-size:12.5px;color:#c8f5e4;margin-top:5px}
+.tabs{display:flex;gap:8px;padding:14px 24px 0;border-bottom:1px solid #27303a}
+.tab{padding:10px 22px;background:#161b22;border:1px solid #27303a;border-bottom:none;border-radius:9px 9px 0 0;cursor:pointer;font-size:13.5px;font-weight:700;color:#8b98a5}
+.tab.on{background:#12b886;color:#06241c;border-color:#12b886}
+.wrap{max-width:1420px;margin:0 auto;padding:18px}
+.grid{display:grid;grid-template-columns:1fr 460px;gap:18px;align-items:start}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}}
+.panel{background:#161b22;border:1px solid #27303a;border-radius:10px;padding:17px;margin-bottom:15px}
+h2{font-size:14.5px;margin-bottom:3px;display:flex;align-items:center;gap:9px}
+.badge{background:#12b886;color:#06241c;font-size:11px;font-weight:800;padding:3px 8px;border-radius:5px}
+.badge.b2{background:#3b82c4;color:#eaf4ff}
+.badge.b3{background:#c47a3b;color:#fff3e8}
+.badge.b4{background:#9b59b6;color:#f6eaff}
+.hint{font-size:11.5px;color:#8b98a5;margin-bottom:11px}
+.sub{font-size:11.5px;color:#4fd1a5;font-weight:700;margin:12px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#1b222b;border:1px solid #2f3a46;color:#c9d6e2;font-size:12.5px;padding:6px 11px;border-radius:999px;cursor:pointer;user-select:none}
+.chip:hover{border-color:#4fd1a5}
+.chip.on{background:#12b886;border-color:#4fd1a5;color:#06241c;font-weight:700}
+.frame{background:#101720;border:1px solid #27303a;border-radius:8px;padding:11px;margin-bottom:9px}
+.frame.off{opacity:.35}
+.frame.intro{border-left:3px solid #3b82c4}
+.frame.ending{border-left:3px solid #c47a3b}
+.flab{font-size:10.5px;font-weight:800;color:#4fd1a5;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.flab label{cursor:pointer;display:flex;align-items:center;gap:5px}
+.pno{background:#1b222b;color:#7d8d9c;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.ftpl{font-size:13px;color:#aebccb;font-family:ui-monospace,Menlo,Consolas,monospace;margin-bottom:6px}
+.fko{font-size:11.5px;color:#6b7a89;margin-bottom:7px}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.swap{background:none;border:1px solid #2f3a46;color:#7d8d9c;font-size:10px;padding:2px 7px;border-radius:5px;cursor:pointer;flex:none;min-width:0;font-weight:600}
+.swap:hover{border-color:#4fd1a5;color:#4fd1a5}
+input[type=text]{flex:1;min-width:130px;background:#0a0f15;border:1px solid #2f3a46;color:#e6edf3;padding:7px 9px;border-radius:6px;font-size:13px;font-family:inherit}
+input[type=text]:focus{outline:none;border-color:#4fd1a5}
+input.sample{border-color:#3d4a3f;color:#9fd8bf}
+select{width:100%;background:#0a0f15;border:1px solid #2f3a46;color:#e6edf3;padding:8px;border-radius:6px;font-size:12.5px;font-family:inherit;margin-bottom:7px}
+.out{background:#0a0f15;border:1px solid #27303a;border-radius:8px;padding:14px;font-size:13.5px;white-space:pre-wrap;word-break:break-word;min-height:170px;color:#dff5ec;line-height:1.9}
+.out .ph{color:#55646f;font-style:italic}
+.out mark{background:#5c4a1f;color:#f5e6c8;padding:0 3px;border-radius:3px}
+.out ins{background:#12543f;color:#9fffdd;text-decoration:none;padding:0 2px;border-radius:3px}
+.btns{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+button{flex:1;min-width:92px;border:none;border-radius:7px;padding:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.primary{background:#12b886;color:#06241c}.primary:hover{background:#2ad8a4}
+.speak{background:#3b82c4;color:#fff}.speak:hover{background:#4f9ada}
+.rec{background:#c0392b;color:#fff}
+.ghost{background:#1b222b;color:#c9d6e2;border:1px solid #2f3a46}.ghost:hover{border-color:#4fd1a5}
+.stats{display:flex;gap:6px;flex-wrap:wrap;font-size:11.5px;margin-bottom:9px}
+.stats span{background:#1b222b;padding:4px 9px;border-radius:5px;color:#9fb3c8}
+.stats span.good{background:#12543f;color:#c8f5e4}
+.stats span.warn{background:#5c4a1f;color:#f5e6c8}
+.lvl{display:flex;gap:5px;margin-bottom:11px}
+.lvl button{flex:1;background:#1b222b;border:1px solid #2f3a46;color:#9fb3c8;padding:7px;font-size:12px}
+.lvl button.on{background:#12b886;color:#06241c;border-color:#4fd1a5}
+.spd{display:flex;align-items:center;gap:9px;font-size:11.5px;color:#8b98a5;margin-top:9px}
+.spd input[type=range]{flex:1;accent-color:#3b82c4}
+.q{font-size:16px;font-weight:600;color:#dff5ec;background:#101720;border-left:3px solid #12b886;padding:15px;border-radius:6px;margin-bottom:13px;min-height:74px}
+.timer{font-size:46px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:#4fd1a5;margin:8px 0}
+.timer.prep{color:#f5c842}.timer.over{color:#f57a7a}
+.phase{text-align:center;font-size:12.5px;color:#8b98a5}
+.bar{height:5px;background:#1b222b;border-radius:3px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:#12b886;width:0;transition:width .3s linear}
+.lib{max-height:280px;overflow-y:auto}
+.libitem{background:#101720;border:1px solid #27303a;border-radius:7px;padding:9px;margin-bottom:7px;font-size:12px}
+.libitem b{color:#4fd1a5;font-size:11.5px}
+.libitem p{color:#8b98a5;margin-top:4px;max-height:42px;overflow:hidden}
+.libitem .x{float:right;color:#f57a7a;cursor:pointer;font-weight:700;margin-left:7px}
+.libitem .s{float:right;color:#5bb8e8;cursor:pointer;font-weight:700}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#12b886;color:#06241c;padding:10px 20px;border-radius:8px;font-weight:700;font-size:12.5px;opacity:0;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hide{display:none}
+textarea{width:100%;min-height:140px;background:#0a0f15;border:1px solid #2f3a46;color:#e6edf3;padding:10px;border-radius:7px;font-size:13px;font-family:inherit;line-height:1.75}
+textarea:focus{outline:none;border-color:#4fd1a5}
+audio{width:100%;margin-top:9px}
+.src{font-size:10.5px;color:#55646f;margin-top:9px;border-top:1px solid #27303a;padding-top:8px;line-height:1.7}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c0392b;margin-right:5px;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.25}}
+.fixlog b{color:#4fd1a5}
+</style>
+</head>
+<body>
+<header>
+  <h1>OPIc 만능패턴 빌더 &amp; 드릴 <span style="font-size:12px;opacity:.8">FINAL</span></h1>
+  <p>만능패턴 72문장 + IH 핸드북 · INTRO 2 / BODY / ENDING 2 · 샘플·듣기·자동전사·문법교정</p>
+</header>
+
+<div class="tabs">
+  <div class="tab on" data-t="build">① BUILD · 답변 설계</div>
+  <div class="tab" data-t="drill">② DRILL · 실전 연습</div>
+</div>
+
+<div class="wrap">
+<!-- ================= BUILD ================= -->
+<div id="build">
+<div class="grid">
+  <div>
+    <div class="panel">
+      <h2><span class="badge">1</span>주제 선택</h2>
+      <div class="hint">주제를 고르면 모든 패턴에 <b>샘플 답변이 자동으로 채워집니다</b>. 빈칸을 내 이야기로 바꾸세요</div>
+      <div class="sub">■ 서베이 주제 (Background Survey)</div>
+      <div class="chips" id="t_survey"></div>
+      <div class="sub">■ 돌발 주제 (Unexpected)</div>
+      <div class="chips" id="t_sudden"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge">2</span>질문 유형</h2>
+      <div class="chips" id="types"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge b2">3</span>INTRO · 2문장</h2>
+      <div class="hint">패턴 교체는 <b>다른 패턴 ▸</b> 버튼</div>
+      <div id="introBox"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge">4</span>BODY · 패턴 채우기</h2>
+      <div class="hint">체크 해제 시 해당 문장 제외</div>
+      <div id="frames"><div class="hint">질문 유형을 먼저 선택하세요.</div></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge b3">5</span>ENDING · 2문장</h2>
+      <div id="endBox"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge">6</span>IH 표현 보강</h2>
+      <div class="sub">강조 부사 (INTRO 삽입)</div><select id="bo_adv"></select>
+      <div class="sub">감정 표현 (BODY 뒤 추가)</div><select id="bo_emo"></select>
+      <div class="sub">흐름 연결어 (ENDING 앞)</div><select id="bo_con"></select>
+      <div class="sub">돌발 상황 표현 (경험형)</div><select id="bo_sud"></select>
+    </div>
+  </div>
+
+  <div style="position:sticky;top:14px">
+    <div class="panel">
+      <h2><span class="badge">OUT</span>완성 답변</h2>
+      <div class="lvl" id="lvlbtns">
+        <button data-l="IM" class="on">IM</button><button data-l="IH">IH</button><button data-l="AL">AL</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="out" id="out"><span class="ph">주제와 유형을 선택하면 조립됩니다…</span></div>
+      <div class="spd">
+        <span>속도</span><input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9">
+        <b id="rateV" style="color:#5bb8e8">0.90x</b>
+      </div>
+      <div class="btns">
+        <button class="speak" onclick="speakAll()">▶ 듣기</button>
+        <button class="ghost" onclick="stopSpeak()">■ 정지</button>
+        <button class="primary" onclick="copyOut()">복사</button>
+      </div>
+      <div class="btns">
+        <button class="ghost" onclick="fillSample()">샘플 다시 채우기</button>
+        <button class="ghost" onclick="clearSlots()">빈칸 비우기</button>
+        <button class="ghost" onclick="saveLib()">저장</button>
+      </div>
+      <div class="src">출처 — 강지완 오픽 만능패턴 72문장 / 오픽 IH 단기완성 핸드북</div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge">LIB</span>내 스크립트</h2>
+      <div class="hint">▶ 버튼으로 저장본 재생</div>
+      <div class="lib" id="lib"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ================= DRILL ================= -->
+<div id="drill" class="hide">
+<div class="grid">
+  <div>
+    <div class="panel">
+      <h2><span class="badge">Q</span>출제</h2>
+      <div class="hint">15초 준비 → 90초 답변</div>
+      <div class="sub">■ 서베이</div><div class="chips" id="d_survey"></div>
+      <div class="sub">■ 돌발</div><div class="chips" id="d_sudden"></div>
+      <div class="btns" style="margin-top:13px">
+        <button class="primary" onclick="newQ()">랜덤 출제</button>
+        <button class="ghost" onclick="comboQ()">콤보 3연속</button>
+        <button class="speak" onclick="speakQ()">질문 듣기</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="q" id="qbox">버튼을 눌러 질문을 받으세요.</div>
+      <div class="phase" id="phase">대기 중</div>
+      <div class="timer" id="timer">--</div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="btns">
+        <button class="primary" onclick="startDrill()">START</button>
+        <button class="ghost" onclick="stopDrill()">정지</button>
+        <button class="rec" id="recbtn" onclick="toggleRec()">● 녹음 시작</button>
+      </div>
+      <div class="src" id="recstat">녹음을 중지하면 음성 인식 결과가 MEMO에 자동 입력됩니다. (Chrome 권장)</div>
+    </div>
+  </div>
+
+  <div style="position:sticky;top:14px">
+    <div class="panel">
+      <h2><span class="badge b4">MEMO</span>내가 말한 내용 (자동 전사)</h2>
+      <div class="hint">녹음 중 실시간 전사 → 중지 시 확정. 직접 수정도 가능합니다</div>
+      <textarea id="memo" placeholder="녹음을 시작하면 여기에 자동으로 전사됩니다..."></textarea>
+      <div class="stats" id="memostat" style="margin-top:9px"></div>
+      <div class="btns">
+        <button class="speak" onclick="speakMemo()">▶ 다시 듣기</button>
+        <button class="ghost" onclick="playRec()">🎙 내 녹음</button>
+        <button class="ghost" onclick="saveMemo()">저장</button>
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="refineMemo()">✎ 문법 교정본 생성</button>
+        <button class="ghost" onclick="clearMemo()">지우기</button>
+      </div>
+      <audio id="player" controls class="hide"></audio>
+    </div>
+
+    <div class="panel">
+      <h2><span class="badge b2">FIX</span>교정 스크립트</h2>
+      <div class="hint">내용은 유지하고 문법·어순·연결어만 다듬습니다. <ins>초록색</ins>이 수정된 부분</div>
+      <div class="out" id="fixed" style="min-height:120px"><span class="ph">위에서 교정본 생성 버튼을 누르세요…</span></div>
+      <div class="src fixlog" id="fixlog"></div>
+      <div class="btns">
+        <button class="speak" onclick="speakFixed()">▶ 교정본 듣기</button>
+        <button class="ghost" onclick="copyFixed()">복사</button>
+        <button class="ghost" onclick="saveFixed()">저장</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="badge">FILLER</span>발화 공백용 표현</h2>
+      <div id="fillers" class="chips"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="badge">REF</span>저장된 스크립트</h2>
+      <div class="lib" id="lib2"></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== 주제 ========== */
+const SURVEY=[["영화 보기","watching movies"],["음악 감상","listening to music"],["공원 가기","going to the park"],
+["조깅/걷기","jogging"],["헬스","working out at the gym"],["국내 여행","traveling in Korea"],
+["해외 여행","traveling abroad"],["카페 가기","going to cafes"],["집에서 영화보기","watching movies at home"],
+["요리하기","cooking"],["독서","reading books"],["쇼핑하기","shopping"],["자전거 타기","riding my bike"],["콘서트 보기","going to concerts"]];
+const SUDDEN=[["은행","going to the bank"],["병원","going to the hospital"],["약속/모임","meeting friends"],
+["날씨·계절","the weather here"],["교통수단","public transportation"],["호텔","staying at hotels"],
+["재활용","recycling"],["인터넷·SNS","using social media"],["휴대폰","using my smartphone"],
+["가구·가전","home appliances"],["명절·휴일","holidays in Korea"],["외식·음식점","eating out"],
+["도서관","going to the library"],["건강 관리","staying healthy"],["패션","fashion these days"],["지역 산업","the industry in my city"]];
+
+/* ========== INTRO / ENDING ========== */
+const INTRO1=[
+["P01","I really enjoy {0} in my free time.","저는 자유 시간에 ~하는 걸 정말 좋아해요",["{TOPIC}"]],
+["P02","One of my favorite activities is {0}.","제가 가장 좋아하는 활동 중 하나는 ~예요",["{TOPIC}"]],
+["P23","Overall, I really enjoy {0}.","전반적으로 저는 ~하는 걸 정말 좋아해요",["{TOPIC}"]],
+["P25","These days people talk a lot about {0}.","요즘 사람들은 ~에 대해 많이 이야기해요",["{TOPIC}"]],
+["P26","I think {0} is very important in our lives.","저는 ~이 우리 삶에서 매우 중요하다고 생각해요",["{TOPIC}"]],
+["P45","Hi, I'm calling because I have a question about {0}.","~에 대해 문의가 있어서 전화했습니다",["the class I booked"]],
+["RP09","Excuse me, there's a small issue I'd like to ask about.","문의드릴 작은 문제가 하나 생겨서요",[]]];
+const INTRO2=[
+["P03","I usually {0} when I have free time.","시간이 있을 때 보통 ~해요",["{TOPIC}"]],
+["P04","I often {0} on weekends.","저는 주말에 ~하는 편이에요",["{TOPIC}"]],
+["P06","Most of the time I {0} alone.","대부분은 혼자 ~하는 편이에요",["do it"]],
+["P05","Sometimes I {0} with my friends.","가끔 친구들이랑 같이 ~하기도 해요",["go out"]],
+["P10","There is a great place near my house where I {0}.","집 근처에 제가 ~하는 좋은 장소가 있어요",["spend my weekends"]],
+["P27","Many people use {0} in their daily lives.","많은 사람들이 일상에서 ~을 사용해요",["it"]],
+["P46","I'd like to ask about {0}.","~에 대해 문의드리고 싶습니다",["the schedule and the price"]]];
+const END1=[
+["P19","That's why I enjoy {0} so much.","그래서 저는 ~하는 걸 정말 좋아해요",["{TOPIC}"]],
+["P20","That's why {0} has become an important part of my life.","그래서 ~가 제 삶의 중요한 부분이 됐어요",["{TOPIC}"]],
+["P40","Because of that experience, I learned {0}.","그 경험을 통해 저는 ~를 배웠어요",["to always prepare in advance"]],
+["P44","That's why {0} is important in modern society.","그래서 ~는 현대 사회에서 중요해요",["{TOPIC}"]],
+["HB10","What I'm tryna say is that {0}.","제가 하려는 말은 결국 ~입니다",["it really helps me recharge"]],
+["HB12","The bottom line is {0}.","가장 중요한 요지는 ~입니다",["I can't imagine my life without it"]],
+["P67","I really appreciate your help with {0}.","~를 도와주셔서 정말 감사합니다",["this"]]];
+const END2=[
+["HB11","That's all I can say about {0}.","~에 대해 해 드릴 말은 그 정도네요",["{TOPIC}"]],
+["HB11","That's about it.","대충 그래요",[]],
+["HB11","That's all I can think of right now.","지금 떠오르는 건 이게 다네요",[]],
+["HB12","All things considered, it's {0}.","종합해 볼 때 ~입니다",["one of the best parts of my week"]],
+["HB12","At the end of the day, {0}.","결국 종국에는 ~입니다",["it's just something I truly love"]],
+["P71","Thanks again for helping with {0}.","~를 도와주셔서 다시 한번 감사합니다",["this"]],
+["RP15","Thanks for your help. Have a great day!","감사합니다. 좋은 하루 보내세요!",[]]];
+
+/* ========== BODY ========== */
+const TYPES={
+"묘사 / 장소":{qs:["Describe your favorite {T} in as much detail as possible.","What does the place you usually go to for {T} look like?","Tell me about the {T} you like the most."],
+f:[["P11","{0} is located not far from where I live.","~는 제가 사는 곳에서 멀지 않은 곳에 있어요",["The place"]],
+["P10","There is a great place near my house where I {0}.","집 근처에 제가 ~하는 좋은 장소가 있어요",["{TOPIC}"]],
+["P08","It's a great way to {0}.","~하기 정말 좋은 방법이에요",["clear my head"]],
+["P09","It makes me feel {0}.","그걸 하면 ~한 기분이 들어요",["refreshed and relaxed"]],
+["P24","For me, {0} is a great way to relax.","저에게 ~하는 건 정말 좋은 휴식 방법이에요",["{TOPIC}"]],
+["P07","I especially like {0} because it helps me relax.","특히 ~하는 걸 좋아하는데 스트레스가 풀리거든요",["the quiet atmosphere there"]]]},
+"습관 / 빈도":{qs:["How often do you do {T}? Walk me through your typical routine.","What do you usually do when you {T}?","Tell me about your daily routine related to {T}."],
+f:[["P03","I usually {0} when I have free time.","시간이 있을 때 보통 ~해요",["{TOPIC}"]],
+["P04","I often {0} on weekends.","주말에 ~하는 편이에요",["{TOPIC}"]],
+["P06","Most of the time I {0} alone.","대부분은 혼자 ~하는 편이에요",["do it"]],
+["P05","Sometimes I {0} with my friends.","가끔 친구들이랑 같이 ~하기도 해요",["do it"]],
+["P21","I don't {0} as often as before.","예전만큼 ~하지는 않아요",["do it"]],
+["P22","But I still enjoy {0} whenever I have the chance.","그래도 기회가 있으면 여전히 ~하는 걸 즐겨요",["{TOPIC}"]],
+["P07","I especially like {0} because it helps me relax.","특히 ~를 좋아하는데 스트레스가 풀리거든요",["doing it in the evening"]]]},
+"경험 / 사건":{qs:["Tell me about a memorable experience you had with {T}.","Has anything unexpected ever happened while you were doing {T}?","Describe the most memorable {T} you've ever had."],
+f:[["P12","I remember one memorable experience when I {0}.","~했을 때 기억에 남는 경험이 있어요",["went there last summer"]],
+["P14","It was one of the most memorable moments when I {0}.","~했을 때 가장 기억에 남는 순간 중 하나였어요",["finally made it"]],
+["P13","Something interesting happened when I {0}.","~했을 때 재미있는 일이 있었어요",["got there"]],
+["P16","Something unexpected happened when I {0}.","~했을 때 예상치 못한 일이 있었어요",["was about to leave"]],
+["P15","However, I once had a problem when I {0}.","그런데 ~했을 때 한 번 문제가 있었어요",["lost my wallet"]],
+["P37","At first, I didn't know how to handle {0}.","처음에는 ~를 어떻게 해결할지 몰랐어요",["the situation"]],
+["P38","But eventually, I found a solution for {0}.","하지만 결국 ~에 대한 해결책을 찾았어요",["it"]],
+["P39","In the end, everything worked out well with {0}.","결국 ~는 잘 해결됐어요",["the whole thing"]]]},
+"과거-현재 비교":{qs:["How has {T} changed compared to the past?","Compare what people did for {T} in the past with what they do now.","What's the difference between {T} when you were young and now?"],
+f:[["P32","Compared to the past, {0} has changed a lot.","예전에 비하면 ~는 많이 바뀌었어요",["{TOPIC}"]],
+["P17","Compared to the past, people {0} much more these days.","예전에 비하면 요즘 사람들은 ~ 훨씬 더 많이 해요",["do it"]],
+["P18","These days more people enjoy {0}.","요즘 더 많은 사람들이 ~하는 걸 즐겨요",["{TOPIC}"]],
+["P33","Because of {0}, our lives have become more convenient.","~ 덕분에 우리의 삶은 더 편리해졌어요",["technology"]],
+["P34","However, some people worry about {0}.","하지만 어떤 사람들은 ~에 대해 걱정하기도 해요",["the downsides"]],
+["P21","I don't {0} as often as before.","예전만큼 ~하지는 않아요",["do it"]]]},
+"사회이슈 / 의견":{qs:["What do people think about {T} these days?","Tell me about the advantages and disadvantages of {T}.","How do you think {T} will change in the future?"],
+f:[["P25","These days people talk a lot about {0}.","요즘 사람들은 ~에 대해 많이 이야기해요",["{TOPIC}"]],
+["P28","One advantage of {0} is convenience.","~의 장점 중 하나는 편리함이에요",["{TOPIC}"]],
+["P29","However, {0} also has some disadvantages.","하지만 ~에도 단점이 있어요",["it"]],
+["P30","One example of {0} is {1}.","~의 한 가지 예는 ~입니다",["this","what happened to me last year"]],
+["P31","Another example of {0} is {1}.","~의 또 다른 예는 ~입니다",["this","what my friends often say"]],
+["P41","In the future, I think {0} will become more common.","앞으로 ~는 더 흔해질 것 같아요",["it"]],
+["P42","More people will probably use {0} in the future.","앞으로 더 많은 사람들이 ~를 사용할 것 같아요",["it"]],
+["P43","I believe {0} will continue to grow.","저는 ~가 계속 발전할 거라고 생각해요",["this trend"]]]},
+"롤플레이 · 문의/예약":{qs:["Call the place and ask three questions about {T}.","You want to make a reservation for {T}. Ask the staff three questions.","Call and ask about the details of {T}."],
+f:[["P47","Could you give me some information about {0}?","~에 대해 정보를 알려주실 수 있을까요?",["the program"]],
+["P48","I'd like to make a reservation for {0}.","~을(를) 예약하고 싶습니다",["this Saturday evening"]],
+["P52","I was wondering if {0} is available.","~가 가능한지 궁금합니다",["7 p.m."]],
+["P55","What time does {0} start?","~는 몇 시에 시작하나요?",["it"]],
+["P56","How much does {0} cost?","~ 가격이 얼마인가요?",["it"]],
+["HB06","How can I pay for it? Can I use a credit card?","결제는 어떻게 하나요? 카드 가능한가요?",[]],
+["HB17","What's the earliest available time?","가장 빠른 예약 가능 시간이 언제인가요?",[]],
+["P57","Do you have any recommendations for {0}?","~에 대해 추천해 주실 게 있나요?",["first-timers"]],
+["HB24","Should we book in advance to avoid long waits?","오래 기다리지 않으려면 미리 예약할까요?",[]]]},
+"롤플레이 · 문제해결":{qs:["There's a problem with your {T}. Explain the situation and suggest two alternatives.","Call and explain the problem you had with {T}.","Leave a message explaining why you can't make it."],
+f:[["P60","I have a problem with {0}.","~에 문제가 있습니다",["my reservation"]],
+["P61","Something went wrong with {0}.","~에 문제가 생긴 것 같습니다",["the booking"]],
+["HB11","It's different from what I expected.","제가 예상했던 것과 다릅니다",[]],
+["P63","I'm not sure what to do about {0}.","~를 어떻게 해야 할지 모르겠습니다",["it"]],
+["P53","Is it possible to change {0}?","~를 변경할 수 있을까요?",["the date or time"]],
+["HB13","Then, can I get a full refund?","그렇다면 전액 환불받을 수 있을까요?",[]],
+["HB14","Then can I get a store credit or discount instead?","환불 대신 크레딧이나 할인권을 받을 수 있을까요?",[]],
+["P62","Could you help me with {0}?","~를 도와주실 수 있을까요?",["this"]],
+["P65","That sounds good for {0}.","~로 하면 괜찮을 것 같습니다",["me"]]]}};
+
+/* ========== 부스터 ========== */
+const ADV=["","absolutely","incredibly","extremely","totally","completely","genuinely","significantly","remarkably","dramatically","literally","definitely","comparatively","relatively","slightly","somewhat","fairly","surprisingly","noticeably"];
+const EMO=[["",""],["It was really refreshing.","상쾌했어요"],["It was so rewarding.","보람찼어요"],["It was truly memorable.","인상 깊었어요"],["It was eye-opening.","눈이 번쩍 뜨였어요"],["It was heartwarming.","마음이 따뜻했어요"],["I was over the moon.","날아갈 듯이 기뻤어요"],["It made my day.","기분이 최고였어요"],["It really hit me.","감동이 밀려왔어요"],["I was blown away.","넋이 나갈 정도였어요"],["It caught me off guard.","허를 찔려 당황했어요"],["My heart was pounding.","가슴이 미친 듯 뛰었어요"],["I was bummed out.","실망스러웠어요"],["It was kind of awkward.","약간 어색했어요"],["It was such a pain.","골치 아픈 일이었죠"],["It was nerve-wracking.","조마조마했어요"],["It was pretty frustrating.","꽤 답답했어요"]];
+const CON=[["",""],["On top of that,","거기에 더해서"],["Plus,","게다가"],["On the flip side,","다른 한편으로는"],["Having said that,","그렇기는 하지만"],["That being said,","그렇기는 하지만"],["As a result,","그 결과"],["Thanks to that,","그 덕분에"],["It all comes down to this:","결국 요약하자면"],["In other words,","즉, 다시 말해"],["To tell you the truth,","솔직히 말해서"],["Believe it or not,","믿기 어렵겠지만"],["Now that I think about it,","지금 다시 생각해보니"],["To sum up,","요약하자면"],["Overall,","종합해 볼 때"],["Ultimately,","궁극적으로는"]];
+const SUD=[["",""],["All of a sudden,","느닷없이"],["Out of the blue,","마른하늘 날벼락처럼"],["Unexpectedly,","기대치 못하게"],["In a flash,","순식간에"],["Without warning,","아무런 예고 없이"],["Suddenly,","갑자기"]];
+const FILLER=["What am I tryna say?","What am I gonna say?","How can I explain this?","Come to think of it,","If I'm being truly honest with you,","As far as I know,","Based on what I know,"];
+const GUIDE={IM:{w:[70,110],s:"짧고 명확하게. BODY 3~4개"},IH:{w:[110,170],s:"연결어·감정표현 필수. BODY 5~6개"},AL:{w:[160,230],s:"담화 구성·개인 평가까지. BODY 전체"}};
+
+/* ========== STATE ========== */
+let S={topic:null,ten:null,tkind:null,type:null,level:"IM",
+ i1:0,i2:0,e1:0,e2:0,on:{i1:1,i2:1,e1:1,e2:1},v:{},adv:"",emo:0,con:0,sud:0};
+function sampleOf(s){return (s||"").replace("{TOPIC}",S.ten||"it");}
+
+/* ========== BUILD 렌더 ========== */
+function initTopics(){
+  const mk=(el,arr,kind)=>document.getElementById(el).innerHTML=arr.map(t=>
+    `<span class="chip ${S.topic===t[0]?'on':''}" data-v="${t[0]}" data-e="${t[1]}" data-k="${kind}">${t[0]}</span>`).join("");
+  mk("t_survey",SURVEY,"서베이");mk("t_sudden",SUDDEN,"돌발");
+  document.querySelectorAll("#t_survey .chip,#t_sudden .chip").forEach(c=>c.onclick=()=>{
+    if(S.topic===c.dataset.v){S.topic=null;S.ten=null;S.tkind=null}
+    else{S.topic=c.dataset.v;S.ten=c.dataset.e;S.tkind=c.dataset.k}
+    initTopics();fillSample();});
+  document.getElementById("types").innerHTML=Object.keys(TYPES).map(k=>
+    `<span class="chip ${S.type===k?'on':''}" data-v="${k}">${k}</span>`).join("");
+  document.querySelectorAll("#types .chip").forEach(c=>c.onclick=()=>{
+    S.type=(S.type===c.dataset.v?null:c.dataset.v);
+    Object.keys(S.v).forEach(k=>{if(k.startsWith("b"))delete S.v[k]});
+    S.on={i1:S.on.i1,i2:S.on.i2,e1:S.on.e1,e2:S.on.e2};
+    initTopics();renderAll();fillSample();});
+}
+function card(cls,key,arr,idx,noSwap){
+  const p=arr[idx],n=(p[1].match(/\{\d\}/g)||[]).length;
+  return `<div class="frame ${cls} ${S.on[key]?"":"off"}" id="f_${key}">
+    <div class="flab">
+      <label><input type="checkbox" data-k="${key}" ${S.on[key]?"checked":""}> 사용</label>
+      <span style="display:flex;gap:5px;align-items:center">
+        ${noSwap?"":`<button class="swap" data-sw="${key}">다른 패턴 ▸</button>`}
+        <span class="pno">${p[0]}</span></span>
+    </div>
+    <div class="ftpl">${p[1].replace(/\{\d\}/g,'<span style="color:#f5c842">▁▁</span>')}</div>
+    <div class="fko">${p[2]}</div>
+    ${n?`<div class="row">${Array.from({length:n},(_,k)=>{
+      const id=key+"_"+k,val=S.v[id]!==undefined?S.v[id]:sampleOf(p[3][k]);
+      return `<input type="text" class="${S.v[id]===undefined?'sample':''}" data-v="${id}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="빈칸 ${k+1}">`;
+    }).join("")}</div>`:""}
+  </div>`;
+}
+function renderAll(){
+  document.getElementById("introBox").innerHTML=card("intro","i1",INTRO1,S.i1)+card("intro","i2",INTRO2,S.i2);
+  document.getElementById("endBox").innerHTML=card("ending","e1",END1,S.e1)+card("ending","e2",END2,S.e2);
+  const fb=document.getElementById("frames");
+  if(!S.type)fb.innerHTML='<div class="hint">질문 유형을 먼저 선택하세요.</div>';
+  else fb.innerHTML=TYPES[S.type].f.map((p,i)=>{
+    const key="b"+i;if(S.on[key]===undefined)S.on[key]=i<5;
+    return card("",key,TYPES[S.type].f,i,true);}).join("");
+  bindCards();build();
+}
+function bindCards(){
+  document.querySelectorAll('input[data-v]').forEach(i=>i.oninput=()=>{
+    S.v[i.dataset.v]=i.value;i.classList.remove("sample");build();});
+  document.querySelectorAll('input[data-k]').forEach(i=>i.onchange=()=>{
+    S.on[i.dataset.k]=i.checked;
+    document.getElementById("f_"+i.dataset.k).classList.toggle("off",!i.checked);build();});
+  document.querySelectorAll('.swap').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.sw,len={i1:INTRO1.length,i2:INTRO2.length,e1:END1.length,e2:END2.length}[k];
+    if(!len)return;S[k]=(S[k]+1)%len;
+    Object.keys(S.v).forEach(x=>{if(x.startsWith(k+"_"))delete S.v[x]});
+    renderAll();});
+}
+function fillSample(){Object.keys(S.v).forEach(k=>delete S.v[k]);renderAll();}
+function clearSlots(){document.querySelectorAll('input[data-v]').forEach(i=>{S.v[i.dataset.v]="";});renderAll();}
+
+function line(arr,idx,key){
+  if(!S.on[key])return "";
+  const p=arr[idx];
+  return p[1].replace(/\{(\d)\}/g,(m,k)=>{
+    const id=key+"_"+k,v=S.v[id]!==undefined?S.v[id]:sampleOf(p[3][k]);
+    return v&&v.trim()?v:"___";});
+}
+function build(){
+  const out=document.getElementById("out"),st=document.getElementById("stats");
+  if(!S.type){out.innerHTML='<span class="ph">주제와 유형을 선택하면 조립됩니다…</span>';st.innerHTML="";return;}
+  let i1=line(INTRO1,S.i1,"i1"),i2=line(INTRO2,S.i2,"i2");
+  if(S.adv&&i1)i1=i1.replace(/^I really enjoy/,"I "+S.adv+" enjoy")
+    .replace(/^Overall, I really enjoy/,"Overall, I "+S.adv+" enjoy").replace(/^I think/,"I "+S.adv+" think");
+  const intro=[i1,i2].filter(Boolean).join(" ");
+  let body=TYPES[S.type].f.map((p,i)=>line(TYPES[S.type].f,i,"b"+i)).filter(Boolean);
+  if(S.sud&&body.length>1)body[1]=SUD[S.sud][0]+" "+body[1].charAt(0).toLowerCase()+body[1].slice(1);
+  if(S.emo)body.push(EMO[S.emo][0]);
+  let e1=line(END1,S.e1,"e1"),e2=line(END2,S.e2,"e2");
+  if(S.con&&e1)e1=CON[S.con][0]+" "+e1.charAt(0).toLowerCase()+e1.slice(1);
+  const text=[intro,body.join(" "),[e1,e2].filter(Boolean).join(" ")].filter(t=>t&&t.trim()).join("\n\n");
+  window.__script=text;
+  const words=text.split(/\s+/).filter(w=>w&&w!=="___").length;
+  const sec=Math.round(words/130*60),g=GUIDE[S.level];
+  const ok=words>=g.w[0]&&words<=g.w[1],bl=(text.match(/___/g)||[]).length;
+  st.innerHTML=`<span>${S.tkind||"주제 미선택"}</span>
+   <span class="${ok?'good':'warn'}">${words}w (목표 ${g.w[0]}~${g.w[1]})</span>
+   <span class="${sec>=60&&sec<=100?'good':'warn'}">약 ${sec}초</span>
+   <span class="${bl?'warn':'good'}">빈칸 ${bl}</span>`;
+  out.innerHTML=text.replace(/___/g,'<mark>___</mark>')+`<div class="src">${S.level} — ${g.s}</div>`;
+}
+document.querySelectorAll("#lvlbtns button").forEach(b=>b.onclick=()=>{
+  S.level=b.dataset.l;document.querySelectorAll("#lvlbtns button").forEach(x=>x.classList.toggle("on",x===b));build();});
+function initBoost(){
+  document.getElementById("bo_adv").innerHTML=ADV.map(a=>`<option value="${a}">${a||"(사용 안 함)"}</option>`).join("");
+  const o=arr=>arr.map((a,i)=>`<option value="${i}">${a[0]||"(사용 안 함)"}${a[1]?"  —  "+a[1]:""}</option>`).join("");
+  document.getElementById("bo_emo").innerHTML=o(EMO);
+  document.getElementById("bo_con").innerHTML=o(CON);
+  document.getElementById("bo_sud").innerHTML=o(SUD);
+  document.getElementById("bo_adv").onchange=e=>{S.adv=e.target.value;build();};
+  document.getElementById("bo_emo").onchange=e=>{S.emo=+e.target.value;build();};
+  document.getElementById("bo_con").onchange=e=>{S.con=+e.target.value;build();};
+  document.getElementById("bo_sud").onchange=e=>{S.sud=+e.target.value;build();};
+  document.getElementById("fillers").innerHTML=FILLER.map(f=>`<span class="chip">${f}</span>`).join("");
+}
+
+/* ========== TTS ========== */
+let rate=0.9;
+document.getElementById("rate").oninput=e=>{rate=+e.target.value;document.getElementById("rateV").textContent=rate.toFixed(2)+"x";};
+function pickVoice(){const vs=speechSynthesis.getVoices();
+  return vs.find(v=>/en-US/i.test(v.lang)&&/Google|Samantha|Natural/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;}
+function speak(txt){
+  if(!("speechSynthesis" in window)){toast("음성 재생 미지원 브라우저");return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt.replace(/___/g," blank ").replace(/\n+/g,". "));
+  u.lang="en-US";u.rate=rate;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}
+function speakAll(){if(!window.__script){toast("먼저 답변을 조립하세요");return;}speak(window.__script);toast("재생 중 "+rate.toFixed(2)+"x");}
+function stopSpeak(){if("speechSynthesis" in window)speechSynthesis.cancel();}
+function speakQ(){speak(document.getElementById("qbox").textContent.replace(/^\[.*?\]\s*/,""));}
+function speakMemo(){const t=document.getElementById("memo").value.trim();if(!t){toast("전사 내용이 없습니다");return;}speak(t);toast("MEMO 재생 중");}
+function speakFixed(){if(!window.__fixed){toast("교정본이 없습니다");return;}speak(window.__fixed);toast("교정본 재생 중");}
+
+/* ========== LIB ========== */
+function getLib(){try{return JSON.parse(localStorage.getItem("opiclibF")||"[]")}catch(e){return[]}}
+function setLib(a){localStorage.setItem("opiclibF",JSON.stringify(a));renderLib();}
+function push(o){const a=getLib();a.unshift(o);setLib(a.slice(0,60));}
+function saveLib(){if(!window.__script){toast("먼저 답변을 조립하세요");return;}
+  push({tag:"설계",topic:S.topic||"미선택",kind:S.tkind||"-",type:S.type,level:S.level,text:window.__script});toast("저장되었습니다");}
+function saveMemo(){const t=document.getElementById("memo").value.trim();if(!t){toast("전사 내용이 없습니다");return;}
+  push({tag:"내 발화",topic:dT||"드릴",kind:"-",type:"transcript",level:"-",text:t});toast("내 발화 저장됨");}
+function saveFixed(){if(!window.__fixed){toast("교정본이 없습니다");return;}
+  push({tag:"교정본",topic:dT||"드릴",kind:"-",type:"corrected",level:"-",text:window.__fixed});toast("교정본 저장됨");}
+function renderLib(){
+  const a=getLib();
+  const h=a.length?a.map((x,i)=>`<div class="libitem">
+    <span class="x" onclick="delLib(${i})">×</span><span class="s" onclick="speakLib(${i})">▶</span>
+    <b>[${x.tag}] ${x.topic} · ${x.type} ${x.level!=="-"?"· "+x.level:""}</b><p>${x.text}</p></div>`).join("")
+    :'<div class="hint">저장된 항목이 없습니다.</div>';
+  document.getElementById("lib").innerHTML=h;document.getElementById("lib2").innerHTML=h;}
+function delLib(i){const a=getLib();a.splice(i,1);setLib(a);}
+function speakLib(i){speak(getLib()[i].text);toast("재생 중");}
+function copyOut(){cp(window.__script);}
+function copyFixed(){cp(window.__fixed);}
+function cp(t){if(!t){toast("내용이 없습니다");return;}
+  navigator.clipboard.writeText(t).then(()=>toast("복사되었습니다")).catch(()=>{
+    const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();
+    document.execCommand("copy");ta.remove();toast("복사되었습니다");});}
+
+/* ========== DRILL ========== */
+let dT=null,dTe=null,tid=null,queue=[];
+function initDrill(){
+  const mk=(el,arr)=>document.getElementById(el).innerHTML=arr.map(t=>
+    `<span class="chip ${dT===t[0]?'on':''}" data-v="${t[0]}" data-e="${t[1]}">${t[0]}</span>`).join("");
+  mk("d_survey",SURVEY);mk("d_sudden",SUDDEN);
+  document.querySelectorAll("#d_survey .chip,#d_sudden .chip").forEach(c=>c.onclick=()=>{
+    if(dT===c.dataset.v){dT=null;dTe=null}else{dT=c.dataset.v;dTe=c.dataset.e}initDrill();});}
+function pick(type){
+  const pool=SURVEY.concat(SUDDEN);
+  const t=dTe||pool[Math.floor(Math.random()*pool.length)][1];
+  const keys=Object.keys(TYPES),k=type||keys[Math.floor(Math.random()*keys.length)];
+  const qs=TYPES[k].qs;
+  return `[${k}] `+qs[Math.floor(Math.random()*qs.length)].replace(/\{T\}/g,t);}
+function newQ(){queue=[];show(pick());}
+function comboQ(){queue=[pick("습관 / 빈도"),pick("경험 / 사건")];show(pick("묘사 / 장소"));toast("콤보 3문항 시작");}
+function show(q){document.getElementById("qbox").textContent=q;}
+function startDrill(){stopDrill();
+  run("준비 15초",15,"prep",()=>run("답변 90초",90,"",()=>{
+    toast("종료!");if(queue.length){show(queue.shift());setTimeout(startDrill,1500);}}));}
+function run(l,sec,cls,done){
+  const T=document.getElementById("timer"),P=document.getElementById("phase"),B=document.getElementById("bar");
+  P.textContent=l;let n=sec;T.className="timer "+cls;T.textContent=n+"s";
+  tid=setInterval(()=>{n--;T.textContent=(n<0?0:n)+"s";B.style.width=((sec-n)/sec*100)+"%";
+    if(n<=10&&cls==="")T.className="timer over";
+    if(n<=0){clearInterval(tid);B.style.width="0";done&&done();}},1000);}
+function stopDrill(){clearInterval(tid);document.getElementById("timer").textContent="--";
+  document.getElementById("phase").textContent="대기 중";document.getElementById("bar").style.width="0";}
+
+/* ===== 녹음 + 음성인식 ===== */
+let rec=null,chunks=[],sr=null,srFinal="",recUrl=null;
+async function toggleRec(){
+  const b=document.getElementById("recbtn"),st=document.getElementById("recstat");
+  if(rec&&rec.state==="recording"){
+    rec.stop();if(sr){try{sr.stop()}catch(e){}}
+    b.textContent="● 녹음 시작";b.className="rec";return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    rec=new MediaRecorder(stream);chunks=[];
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>{
+      const bl=new Blob(chunks,{type:"audio/webm"});
+      if(recUrl)URL.revokeObjectURL(recUrl);
+      recUrl=URL.createObjectURL(bl);
+      const p=document.getElementById("player");p.src=recUrl;p.classList.remove("hide");
+      stream.getTracks().forEach(t=>t.stop());
+      st.innerHTML="녹음 완료 · 전사된 내용을 MEMO에서 확인하고 교정본을 생성하세요.";
+      memoStat();toast("녹음 완료 — MEMO 확인");
+    };
+    rec.start();
+    b.textContent="■ 녹음 중지";b.className="ghost";
+    st.innerHTML='<span class="dot"></span>녹음 중… 말하면 MEMO에 실시간 전사됩니다';
+    startSR();
+  }catch(e){toast("마이크 권한이 필요합니다");}
+}
+function startSR(){
+  const SRC=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SRC){document.getElementById("recstat").innerHTML="이 브라우저는 자동 전사를 지원하지 않습니다. 녹음만 저장되며 MEMO는 직접 입력하세요. (Chrome 권장)";return;}
+  srFinal=document.getElementById("memo").value?document.getElementById("memo").value+" ":"";
+  sr=new SRC();sr.lang="en-US";sr.continuous=true;sr.interimResults=true;
+  sr.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)srFinal+=t.trim()+" ";else interim+=t;}
+    document.getElementById("memo").value=(srFinal+interim).replace(/\s+/g," ");
+    memoStat();
+  };
+  sr.onerror=ev=>{if(ev.error==="not-allowed")toast("마이크 권한 거부됨");};
+  sr.onend=()=>{if(rec&&rec.state==="recording"){try{sr.start()}catch(e){}}};
+  try{sr.start()}catch(e){}
+}
+function playRec(){
+  const p=document.getElementById("player");
+  if(!p.src){toast("녹음 파일이 없습니다");return;}
+  p.classList.remove("hide");p.currentTime=0;p.play();toast("내 녹음 재생");}
+function clearMemo(){document.getElementById("memo").value="";srFinal="";memoStat();}
+function memoStat(){
+  const t=document.getElementById("memo").value.trim();
+  const w=t?t.split(/\s+/).length:0,sec=Math.round(w/130*60);
+  document.getElementById("memostat").innerHTML=
+    `<span class="${w>=110?'good':'warn'}">${w} words</span><span>약 ${sec}초</span>`;}
+document.getElementById("memo").oninput=memoStat;
+
+/* ===== 문법 교정 엔진 ===== */
+const RULES=[
+ [/\bi\b/g,"I","1인칭 대문자"],
+ [/\bim\b/gi,"I'm","I'm"],
+ [/\bdont\b/gi,"don't","축약형"],
+ [/\bdoesnt\b/gi,"doesn't","축약형"],
+ [/\bdidnt\b/gi,"didn't","축약형"],
+ [/\bcant\b/gi,"can't","축약형"],
+ [/\bwasnt\b/gi,"wasn't","축약형"],
+ [/\bits a\b/gi,"it's a","it's"],
+ [/\bi am like\b/gi,"I'd say","구어 정리"],
+ [/\bvery very\b/gi,"really","중복 강조 정리"],
+ [/\bso so\b/gi,"quite","중복 강조 정리"],
+ [/\bvery much like\b/gi,"really enjoy","자연스러운 표현"],
+ [/\bI like very much\b/gi,"I really like","어순 교정"],
+ [/\bI very like\b/gi,"I really like","어순 교정"],
+ [/\bI am go\b/gi,"I go","시제 교정"],
+ [/\bI am went\b/gi,"I went","시제 교정"],
+ [/\bI was go\b/gi,"I went","시제 교정"],
+ [/\bI go there yesterday\b/gi,"I went there yesterday","과거시제"],
+ [/\bI didn't went\b/gi,"I didn't go","did + 원형"],
+ [/\bI don't went\b/gi,"I didn't go","did + 원형"],
+ [/\bdid you went\b/gi,"did you go","did + 원형"],
+ [/\bI have went\b/gi,"I have gone","완료형"],
+ [/\bmore better\b/gi,"better","이중 비교급"],
+ [/\bmost best\b/gi,"the best","이중 최상급"],
+ [/\bevery days\b/gi,"every day","단수"],
+ [/\bmany time\b/gi,"many times","복수"],
+ [/\bthree times a week time\b/gi,"three times a week","중복 제거"],
+ [/\binformations\b/gi,"information","불가산명사"],
+ [/\badvices\b/gi,"advice","불가산명사"],
+ [/\bstuffs\b/gi,"stuff","불가산명사"],
+ [/\bpeoples\b/gi,"people","복수형"],
+ [/\bin weekend\b/gi,"on weekends","전치사"],
+ [/\bin the weekend\b/gi,"on weekends","전치사"],
+ [/\bin last year\b/gi,"last year","전치사 삭제"],
+ [/\bin yesterday\b/gi,"yesterday","전치사 삭제"],
+ [/\bin nowadays\b/gi,"nowadays","전치사 삭제"],
+ [/\bat home house\b/gi,"at home","중복 제거"],
+ [/\bgo to home\b/gi,"go home","관용 표현"],
+ [/\bdiscuss about\b/gi,"discuss","타동사"],
+ [/\bexplain about\b/gi,"explain","타동사"],
+ [/\benjoy to\b/gi,"enjoy","enjoy + -ing"],
+ [/\blike to go there very much\b/gi,"really like going there","자연스러운 표현"],
+ [/\bI want go\b/gi,"I want to go","to부정사"],
+ [/\bI can to\b/gi,"I can","조동사+원형"],
+ [/\bI will going\b/gi,"I will go","조동사+원형"],
+ [/\bthere is many\b/gi,"there are many","수일치"],
+ [/\bthere was many\b/gi,"there were many","수일치"],
+ [/\bhe don't\b/gi,"he doesn't","3인칭 단수"],
+ [/\bshe don't\b/gi,"she doesn't","3인칭 단수"],
+ [/\bit don't\b/gi,"it doesn't","3인칭 단수"],
+ [/\band and\b/gi,"and","중복 접속사"],
+ [/\bbut but\b/gi,"but","중복 접속사"],
+ [/\bbecause because\b/gi,"because","중복 접속사"],
+ [/\bso so that\b/gi,"so that","중복 정리"],
+ [/\bactually actually\b/gi,"actually","중복 정리"]
+];
+const FLUFF=/\b(um+|uh+|ah+|er+|hmm+|like like|you know you know)\b/gi;
+const STARTS=["Also,","On top of that,","Plus,","Besides that,","And another thing,"];
+
+function refineMemo(){
+  let t=document.getElementById("memo").value.trim();
+  if(!t){toast("전사 내용이 없습니다");return;}
+  const log=[];let n=0;
+
+  // 1) 군더더기 제거
+  const before=t;
+  t=t.replace(FLUFF," ").replace(/\s{2,}/g," ");
+  if(t!==before)log.push("군더더기(um/uh/like 반복) 제거");
+
+  // 2) 규칙 교정
+  RULES.forEach(([re,to,ko])=>{
+    if(re.test(t)){t=t.replace(re,to);if(!log.includes(ko)){log.push(ko);}n++;}
+    re.lastIndex=0;
+  });
+
+  // 3) 문장 분할 + 대문자/마침표 정리
+  let sents=t.replace(/([.!?])\s*/g,"$1|").split("|").filter(s=>s.trim());
+  if(sents.length<=1){
+    sents=t.split(/\s+(?=(?:and then|then|but|so|after that|because)\b)/i).filter(s=>s.trim());
+    if(sents.length>1)log.push("긴 문장을 문장 단위로 분리");
+  }
+  let si=0;
+  sents=sents.map(s=>{
+    s=s.trim().replace(/^(and then|and|then|so)\s+/i,()=>{
+      const r=STARTS[si%STARTS.length];si++;return r+" ";});
+    s=s.charAt(0).toUpperCase()+s.slice(1);
+    if(!/[.!?]$/.test(s))s+=".";
+    return s;
+  });
+  if(si>0)log.push("문장 첫머리 and/then → 연결어로 교체");
+
+  // 4) 단조로운 시작 교정
+  let iCount=0;
+  sents=sents.map((s,idx)=>{
+    if(/^I\s/.test(s)){iCount++;
+      if(iCount>=3&&idx>1){iCount=0;return "Personally, "+s.charAt(0).toLowerCase()+s.slice(1);}}
+    return s;});
+  if(iCount===0&&sents.some(s=>/^Personally,/.test(s)))log.push("I 반복 시작 완화");
+
+  // 5) 마무리 문장 보강
+  const last=sents[sents.length-1]||"";
+  if(!/(That's about it|That's all|bottom line|At the end of the day)/i.test(last)){
+    sents.push("Overall, that's pretty much everything I can think of right now.");
+    log.push("핸드북식 마무리 문장 추가");
+  }
+
+  const fixed=sents.join(" ");
+  window.__fixed=fixed;
+
+  // diff 하이라이트 (단어 단위 간이 비교)
+  const ow=document.getElementById("memo").value.trim().toLowerCase().split(/\s+/);
+  const set=new Set(ow);
+  const html=fixed.split(/\s+/).map(w=>{
+    const bare=w.toLowerCase().replace(/[.,!?]/g,"");
+    return set.has(bare)?w:`<ins>${w}</ins>`;}).join(" ");
+
+  const w=fixed.split(/\s+/).length,sec=Math.round(w/130*60);
+  document.getElementById("fixed").innerHTML=html;
+  document.getElementById("fixlog").innerHTML=
+    `<b>교정 ${log.length}건</b> · ${w} words · 약 ${sec}초<br>`+
+    (log.length?log.map(l=>"• "+l).join("<br>"):"• 수정할 항목이 발견되지 않았습니다");
+  toast("교정본 생성 완료");
+}
+
+/* ========== 탭 / 토스트 ========== */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
+  document.getElementById("build").classList.toggle("hide",t.dataset.t!=="build");
+  document.getElementById("drill").classList.toggle("hide",t.dataset.t!=="drill");});
+function toast(m){const e=document.getElementById("toast");e.textContent=m;e.classList.add("show");
+  setTimeout(()=>e.classList.remove("show"),1700);}
+if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=()=>{};
+
+initTopics();initBoost();renderAll();initDrill();renderLib();memoStat();
+</script>
+</body>
+</html>
